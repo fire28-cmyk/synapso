@@ -1,20 +1,24 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
-st.set_page_config(page_title="Synapso", page_icon="🧠")
-
+# Titre de l'appli
 st.title("🧠 Synapso – Ton IA personnelle")
-st.markdown("Pose-moi une question, je te réponds intelligemment.")
+st.write("Pose-moi une question, je te réponds intelligemment.")
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Champ pour entrer la question
+prompt = st.text_input("Ta question ici...")
 
-prompt = st.text_area("💬 Pose ta question ici")
+# Si l'utilisateur écrit une question
+if prompt:
+    # Initialisation du client OpenAI avec ta clé API
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-if st.button("Envoyer") and prompt:
-    with st.spinner("Synapso réfléchit..."):
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        st.markdown("### 🤖 Réponse de Synapso")
-        st.write(response.choices[0].message.content)
+    # Envoie de la requête à GPT
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    # Récupération et affichage de la réponse
+    reply = response.choices[0].message.content
+    st.write("🤖 Réponse :", reply)
